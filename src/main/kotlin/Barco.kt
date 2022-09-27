@@ -3,11 +3,9 @@ class Barco
 
     var coordenadasLetras = mutableListOf<Int>()
     var coordenadasNumeros = mutableListOf<Int>()
-
-    var tamanoBarco  = 1
-
-
+    var tamanoBarco = 0
     var direccion = -1
+
 
     fun comprobarDireccion(direc : String) {
         var direccionString = direc.uppercase()
@@ -28,10 +26,4 @@ class Barco
     var nombre = ""
 
     var vidas : Int = tamanoBarco
-        set(vidas : Int){
-            field -= vidas
-        }
-
-
-
 }
