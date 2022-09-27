@@ -4,15 +4,18 @@ class Juego{
     var tableroJugador = Array(8){Array(8){"~~~"} }
     var tableroIA = Array(8){Array(8){"~~~"} }
 
-    fun pintarTablero(){
+    fun pintarTablero(mapa : Array<Array<String>>)
+    {
         var letter = 65
         println("-----------------------------------")
         println("  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |")
-        for(i in 0 until 8){
+        for(i in 0 until 8)
+        {
             print("|${letter.toChar()}")
             letter++
-            for(x in 0 until 8){
-                print("|" + tableroJugador[i][x])
+            for(x in 0 until 8)
+            {
+                print("|" + mapa[i][x])
             }
             println("|")
         }
@@ -20,29 +23,73 @@ class Juego{
     }
     private fun comprobarBarcos(barcoAColocar : Barco, mapa : Array<Array<String>>) : Boolean{
         var estaOcupado = false
-        for(i in 0 until barcoAColocar.tamanoBarco){
-            if(barcoAColocar.direccion == 0 && barcoAColocar.coordenadaLetra - i >=0){
-                if(mapa[barcoAColocar.coordenadaLetra - i][barcoAColocar.coordenadaNumero].compareTo(" B ") == 0){
+        val coordenadasLetras = mutableListOf<Int>()
+        val coordenadasNum = mutableListOf<Int>()
+
+        for(i in 0 until barcoAColocar.tamanoBarco)
+        {
+            if(barcoAColocar.direccion == 0 && barcoAColocar.coordenadasLetras[0] - i >= 0)
+            {
+                if(mapa[barcoAColocar.coordenadasLetras[0] - i][barcoAColocar.coordenadasNumeros[0]].compareTo("~~~") !=0)
+                {
                     estaOcupado = true
                     break
                 }
-            }else if(barcoAColocar.direccion == 1 && barcoAColocar.coordenadaNumero + i <= 7){
-                if(mapa[barcoAColocar.coordenadaLetra][barcoAColocar.coordenadaNumero + i].compareTo(" B ") == 0){
+                else
+                {
+                    coordenadasLetras.add(barcoAColocar.coordenadasLetras[0] - i)
+                    coordenadasNum.add(barcoAColocar.coordenadasNumeros[0])
+                }
+            }
+            else if(barcoAColocar.direccion == 1 && barcoAColocar.coordenadasNumeros[0] + i <=7)
+            {
+                if(mapa[barcoAColocar.coordenadasLetras[0]][barcoAColocar.coordenadasNumeros[0] + i].compareTo("~~~") != 0)
+                {
                     estaOcupado = true
                     break
                 }
-            }else if(barcoAColocar.direccion == 2 && barcoAColocar.coordenadaLetra + i <= 7){
-                if(mapa[barcoAColocar.coordenadaLetra + i][barcoAColocar.coordenadaNumero].compareTo(" B ") == 0){
+                else
+                {
+                    coordenadasLetras.add(barcoAColocar.coordenadasLetras[0])
+                    coordenadasNum.add(barcoAColocar.coordenadasNumeros[0] + i)
+                }
+            }
+            else if(barcoAColocar.direccion == 2 && barcoAColocar.coordenadasLetras[0] + i <= 7)
+            {
+                if(mapa[barcoAColocar.coordenadasLetras[0] + i][barcoAColocar.coordenadasNumeros[0]].compareTo("~~~") != 0)
+                {
                     estaOcupado = true
                     break
                 }
-            }else if(barcoAColocar.direccion == 3 && barcoAColocar.coordenadaNumero - i >= 0){
-                if(mapa[barcoAColocar.coordenadaLetra][barcoAColocar.coordenadaNumero - i].compareTo(" B ") == 0){
+                else
+                {
+                    coordenadasLetras.add(barcoAColocar.coordenadasLetras[0] + i)
+                    coordenadasNum.add(barcoAColocar.coordenadasNumeros[0])
+                }
+            }
+            else if(barcoAColocar.direccion == 3 && barcoAColocar.coordenadasNumeros[0] - i >= 0)
+            {
+                if(mapa[barcoAColocar.coordenadasLetras[0]][barcoAColocar.coordenadasNumeros[0] - i].compareTo("~~~") != 0)
+                {
                     estaOcupado = true
                     break
+                }
+                else
+                {
+                    coordenadasLetras.add(barcoAColocar.coordenadasLetras[0])
+                    coordenadasNum.add(barcoAColocar.coordenadasNumeros[0] - 1)
                 }
             }
         }
+        if(!estaOcupado){
+            barcoAColocar.coordenadasLetras = coordenadasLetras
+            barcoAColocar.coordenadasNumeros = coordenadasNum
+        }
+        else{
+            barcoAColocar.coordenadasLetras.removeAt(0)
+            barcoAColocar.coordenadasNumeros.removeAt(0)
+        }
+
         return estaOcupado
     }
 
@@ -50,58 +97,26 @@ class Juego{
         var faltaAlgo = false
         if(!comprobarBarcos(barco, mapa))
         {
-            if (barco.direccion == 0)
+            if (barco.nombre.compareTo("Submarino") == 0)
             {
-                if (barco.coordenadaLetra - barco.tamanoBarco >= -1)
-                {
-                    for (x in 0 until barco.tamanoBarco)
-                        mapa[barco.coordenadaLetra - x][barco.coordenadaNumero] = " B "
-                }
+                for (x in 0 until barco.tamanoBarco)
+                    mapa[barco.coordenadasLetras[x]][barco.coordenadasNumeros[x]] = " S "
 
-                else
-                {
-                    faltaAlgo = true
-                }
             }
-            else if (barco.direccion == 1)
+            else if (barco.nombre.compareTo("Destructor") == 0)
             {
-                if (barco.coordenadaNumero + barco.tamanoBarco <= 8)
-                {
-                    for (x in 0 until barco.tamanoBarco)
-                        mapa[barco.coordenadaLetra][barco.coordenadaNumero + x] = " B "
-                } else
-                {
-                    faltaAlgo = true
-                }
+                for (x in 0 until barco.tamanoBarco)
+                    mapa[barco.coordenadasLetras[x]][barco.coordenadasNumeros[x]] = " D "
             }
-            else if (barco.direccion == 2)
+            else if (barco.nombre.compareTo("Crucero") == 0)
             {
-                if (barco.coordenadaLetra + barco.tamanoBarco <= 8)
-                {
-                    for (x in 0 until barco.tamanoBarco)
-                        mapa[barco.coordenadaLetra + x][barco.coordenadaNumero] = " B "
-                }
-                else
-                {
-                    faltaAlgo = true
-                }
+                for (x in 0 until barco.tamanoBarco)
+                    mapa[barco.coordenadasLetras[x]][barco.coordenadasNumeros[x]] = " C "
             }
-            else if (barco.direccion == 3)
+            else if (barco.nombre.compareTo("Acorazado") == 0)
             {
-                if (barco.coordenadaNumero - barco.tamanoBarco >= -1)
-                {
-                    for (x in 0 until barco.tamanoBarco)
-                        mapa[barco.coordenadaLetra][barco.coordenadaNumero - x] = " B "
-                }
-                else
-                {
-                    faltaAlgo = true
-                }
-            }
-            else
-            {
-                faltaAlgo = true
-
+                for (x in 0 until barco.tamanoBarco)
+                    mapa[barco.coordenadasLetras[x]][barco.coordenadasNumeros[x]] = " A "
             }
         }
         else
@@ -110,6 +125,7 @@ class Juego{
         }
 
         return faltaAlgo
+
     }
 
     fun bienvenida(){
@@ -124,9 +140,9 @@ class Juego{
         do{
            try{
                println("¿Dónde quieres colocar el ${barco.nombre}?(La letra)")
-               barco.comprobarLetra(readln())
+               barco.coordenadasLetras.add(comprobarLetra(readln()))
                println("¿Dónde quieres colocar el ${barco.nombre}?(El número)")
-               barco.comprobarNumero(readln().toInt())
+               barco.coordenadasNumeros.add(comprobarNumero(readln().toInt()))
                println("¿En qué dirección lo quieres? \n Arriba: W \n Derecha: D \n Abajo: S \n Izquierda: A")
                barco.comprobarDireccion(readln())
                condicion = pintarBarco(barco, tableroJugador)
@@ -136,11 +152,11 @@ class Juego{
                println("Formato numérico erróneo, volvamos a empezar")
            }
         }while(condicion)
-        pintarTablero()
+        pintarTablero(tableroJugador)
 
     }
 
-    fun atacar(mapa : Array<Array<String>>)
+   /* fun atacar(mapa : Array<Array<String>>)
     {
         var coordenadaLetra : Int
         var coordenadaNum : Int
@@ -148,45 +164,37 @@ class Juego{
        do{
            try{
                println("¿A qué coordenada quiere atacar?(La letra)")
-               coordenadaLetra = readln().toInt() - 1
+               coordenadaLetra = comprobarLetra(readln())
                println("¿A qué coordenada quiere atacar?(El número)")
-               coordenadaNum = readln().toInt() - 1
+               coordenadaNum = comprobarNumero(readln().toInt())
 
-               if(coordenadaLetra in 0..7 && coordenadaNum in 0..7)
-               {
-                   if(mapa[coordenadaLetra][coordenadaNum].compareTo(" B ") == 0){
-                       mapa[coordenadaLetra][coordenadaNum] = " T "
+               if(mapa[coordenadaLetra][coordenadaNum].compareTo(" B ") == 0){
+                   mapa[coordenadaLetra][coordenadaNum] = " T "
 
-                   }else{
-                       mapa[coordenadaLetra][coordenadaNum] = "***"
-                   }
-                   comprobar = false
+               }else{
+                   mapa[coordenadaLetra][coordenadaNum] = "***"
                }
-               else
-               {
-                   println("Las coordenadas son erróneas, inténtelo de nuevo")
-               }
+               comprobar = false
+
            }catch(e : NumberFormatException){
                println("El formato del número es erróneo, inténtelo de nuevo")
            }
-
-
        }while(comprobar)
     }
-
+*/
 }
 
-fun main(args: Array<String>) {
+fun main() {
     val barco1_1 = Barco()
     barco1_1.tamanoBarco = 1
     barco1_1.nombre = "Submarino"
     val barco1_2 = Barco()
     barco1_2.tamanoBarco = 1
     barco1_2.nombre = "Submarino"
-    /* val barco2_1 = Barco()
+    val barco2_1 = Barco()
      barco2_1.tamanoBarco = 2
      barco2_1.nombre = "Destructor"
-     val barco2_2 = Barco()
+     /*val barco2_2 = Barco()
      barco2_2.tamanoBarco = 2
      barco2_2.nombre = "Destructor"
      val barco3 = Barco()
@@ -197,15 +205,59 @@ fun main(args: Array<String>) {
      barco4.nombre = "Acorazado"*/
     val tableroJuego = Juego()
     tableroJuego.bienvenida()
-    tableroJuego.pintarTablero()
+    tableroJuego.pintarTablero(tableroJuego.tableroJugador)
 
-    tableroJuego.pedirDatos(barco1_1);
-//    println("${barco1_1.coordenadaLetra}, ${barco1_1.direccion}")
-    tableroJuego.pintarBarco(barco1_1, tableroJuego.tableroJugador)
+    tableroJuego.pedirDatos(barco1_1)
+    println("${barco1_1.coordenadasLetras}, ${barco1_1.coordenadasNumeros}")
     tableroJuego.pedirDatos(barco1_2)
-    tableroJuego.pintarBarco(barco1_2, tableroJuego.tableroJugador)
-    tableroJuego.pintarTablero()
-    tableroJuego.atacar(tableroJuego.tableroJugador)
-    tableroJuego.pintarTablero()
+    tableroJuego.pedirDatos(barco2_1)
+    println("${barco2_1.coordenadasLetras}, ${barco2_1.coordenadasNumeros}")
+}
 
+fun comprobarLetra(letra : String) : Int{
+    var coordenada = letra.uppercase()
+    var coordenadaNum = -1
+    do{
+        when(coordenada){
+            "A" -> coordenadaNum = 0
+            "B" -> coordenadaNum = 1
+            "C" -> coordenadaNum = 2
+            "D" -> coordenadaNum = 3
+            "E" -> coordenadaNum = 4
+            "F" -> coordenadaNum = 5
+            "G" -> coordenadaNum = 6
+            "H" -> coordenadaNum = 7
+            else ->{
+                println("Letra equivocada, inténtelo de nuevo:")
+                coordenada = readln().uppercase()
+            }
+        }
+    }while(coordenadaNum == -1)
+    return coordenadaNum
+}
+
+fun comprobarNumero(num : Int) : Int{
+    var coordenada = num
+    var coordenadaNumero = -1
+    do
+    {
+        try
+        {
+            if(coordenada in 1..8)
+            {
+                coordenadaNumero = coordenada - 1
+            }
+            else
+            {
+                println("Número equivocado, inténtelo de nuevo:")
+                coordenada = readln().toInt()
+            }
+        }
+        catch(e : NumberFormatException)
+        {
+            println("Formato numérico incorrecto, inténtalo de nuevo")
+            coordenada = readln().toInt()
+        }
+    }while(coordenadaNumero == -1)
+    return coordenadaNumero
 }
