@@ -1,27 +1,33 @@
 import java.lang.NumberFormatException
 
-class Juego{
+class Juego
+{
     var tableroJugador = Array(8){Array(8){"~~~"} }
     var tableroIA = Array(8){Array(8){"~~~"} }
     var barcosJugador = List<Barco>(6){Barco()}
     var barcosIA = List<Barco>(6){Barco()}
 
-    fun pintarTablero(mapa : Array<Array<String>>)
+    fun pintarTablero()
     {
         var letter = 65
-        println("-----------------------------------")
-        println("  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |")
-        for(element in mapa)
+        println("-------------------------------------------------------------------------------")
+        println("  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | \t \t  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |")
+        for(i in 0 until  tableroJugador.size)
         {
             print("|${letter.toChar()}")
-            letter++
-            for(x in mapa.indices)
+
+            for(x in 0 until tableroJugador.size)
             {
-                print("|" + element[x])
+                print("|" + tableroJugador[i][x])
             }
+            print("| \t \t")
+            print("|${letter.toChar()}")
+            letter++
+            for(z in 0 until tableroIA.size)
+                print("|" + tableroIA[i][z])
             println("|")
         }
-        println("-----------------------------------")
+        println("-------------------------------------------------------------------------------")
     }
     private fun comprobarBarcos(barcoAColocar : Barco, mapa : Array<Array<String>>) : Boolean{
         var estaOcupado = false
@@ -138,6 +144,7 @@ class Juego{
         println("----------------------------------------------------------- \n" +
                 "--------------------BIENVENIDO AL JUEGO--------------------\n" +
                 "-----------------------------------------------------------\n-\n-\n-")
+
     }
 
    fun pedirDatos(barco : Barco)
@@ -158,7 +165,7 @@ class Juego{
                println("Formato numérico erróneo, volvamos a empezar")
            }
         }while(condicion)
-        pintarTablero(tableroJugador)
+        pintarTablero()
 
     }
 
@@ -183,12 +190,18 @@ class Juego{
            var coordenadaLetra : Int
            var coordenadaNum : Int
            var tocado = false
-           try{
+           if(mapa == tableroJugador && barcos == barcosJugador)
+           {
+               coordenadaLetra = (0..7).random()
+               coordenadaNum = (0..7).random()
+           }
+           else{
                println("¿A qué coordenada quiere atacar?(La letra)")
                coordenadaLetra = comprobarLetra(readln())
                println("¿A qué coordenada quiere atacar?(El número)")
                coordenadaNum = comprobarNumero(readln().toInt())
-
+           }
+           try{
                for(i in barcos)
                {
                   if(!tocado)
@@ -200,7 +213,7 @@ class Juego{
                               mapa[coordenadaLetra][coordenadaNum] = " T "
                               tocado = true
                               i.vidas--
-                              println("¡HAS ACERTADO, TE TOCA DE NUEVO!")
+                              println("¡TIRO ACERTADO, SE AÑADE UN NUEVO TURNO!")
                               if(i.vidas == 0)
                               {
                                   for(z in 0 until i.tamanoBarco)
@@ -210,7 +223,7 @@ class Juego{
                               }
                               i.coordenadasLetras.removeAt(x)
                               i.coordenadasNumeros.removeAt(x)
-                              pintarTablero(mapa)
+                              pintarTablero()
                               break
                           }
                       }
@@ -220,15 +233,95 @@ class Juego{
                    mapa[coordenadaLetra][coordenadaNum] = "***"
                }
 
-               if(!tocado)
-                   println("¡HAS FALLADO!")
-
+               if(!tocado){
+                   pintarTablero()
+                   println("¡TIRO FALLADO!")
+               }
            }catch(e : NumberFormatException){
                println("El formato del número es erróneo, inténtelo de nuevo")
                tocado = false
            }
        }while(tocado)
    }
+    fun comprobarLetra(letra : String) : Int{
+        var coordenada = letra.uppercase()
+        var coordenadaNum = -1
+        do{
+            when(coordenada){
+                "A" -> coordenadaNum = 0
+                "B" -> coordenadaNum = 1
+                "C" -> coordenadaNum = 2
+                "D" -> coordenadaNum = 3
+                "E" -> coordenadaNum = 4
+                "F" -> coordenadaNum = 5
+                "G" -> coordenadaNum = 6
+                "H" -> coordenadaNum = 7
+                else ->{
+                    println("Letra equivocada, inténtelo de nuevo:")
+                    coordenada = readln().uppercase()
+                }
+            }
+        }while(coordenadaNum == -1)
+        return coordenadaNum
+    }
+
+    fun comprobarNumero(num : Int) : Int{
+        var coordenada = num
+        var coordenadaNumero = -1
+        do
+        {
+            try
+            {
+                if(coordenada in 1..8)
+                {
+                    coordenadaNumero = coordenada - 1
+                }
+                else
+                {
+                    println("Número equivocado, inténtelo de nuevo:")
+                    coordenada = readln().toInt()
+                }
+            }
+            catch(e : NumberFormatException)
+            {
+                println("Formato numérico incorrecto, inténtalo de nuevo")
+                coordenada = readln().toInt()
+            }
+        }while(coordenadaNumero == -1)
+        return coordenadaNumero
+    }
+
+    fun comprobarGanador() : Boolean
+    {
+        var contadorVidasJugador = 6;
+        var contadorVidasIA = 6;
+
+        for(element in barcosJugador){
+            if(element.vidas == 0)
+                contadorVidasJugador--
+        }
+
+        for(element in barcosIA){
+            if(element.vidas == 0)
+                contadorVidasIA--
+        }
+
+        return if(contadorVidasJugador == 0){
+            println("-------------------------------------------------------------------\n" +
+                    "----------------------- ¡GANADOR: JUGADOR! ------------------------\n" +
+                    "-------------------------------------------------------------------\n")
+            false
+        } else if(contadorVidasIA == 0){
+            println("-------------------------------------------------------------------\n" +
+                    "------------------------- ¡GANADOR: IA! ---------------------------\n" +
+                    "-------------------------------------------------------------------\n")
+            false
+        } else{
+            true
+        }
+
+
+    }
 }
 
 fun main() {
@@ -247,67 +340,34 @@ fun main() {
         tableroJuego.barcosJugador[i].vidas = tamanyos[i]
     }
     tableroJuego.bienvenida()
-    tableroJuego.pintarTablero(tableroJuego.tableroJugador)
+    readln()
+    tableroJuego.pintarTablero()
 
-//   for(i in tableroJuego.barcosJugador){
-//    tableroJuego.pedirDatos(i)
-//   }
+   for(i in tableroJuego.barcosJugador){
+    tableroJuego.pedirDatos(i)
+   }
 
     for(i in tableroJuego.barcosIA){
         tableroJuego.generarBarcosIA(i)
     }
 
-    tableroJuego.pintarTablero(tableroJuego.tableroIA)
-    tableroJuego.atacar(tableroJuego.tableroIA, tableroJuego.barcosIA)
-    tableroJuego.pintarTablero(tableroJuego.tableroIA)
-    tableroJuego.atacar(tableroJuego.tableroIA, tableroJuego.barcosIA)
-
-}
-
-fun comprobarLetra(letra : String) : Int{
-    var coordenada = letra.uppercase()
-    var coordenadaNum = -1
-    do{
-        when(coordenada){
-            "A" -> coordenadaNum = 0
-            "B" -> coordenadaNum = 1
-            "C" -> coordenadaNum = 2
-            "D" -> coordenadaNum = 3
-            "E" -> coordenadaNum = 4
-            "F" -> coordenadaNum = 5
-            "G" -> coordenadaNum = 6
-            "H" -> coordenadaNum = 7
-            else ->{
-                println("Letra equivocada, inténtelo de nuevo:")
-                coordenada = readln().uppercase()
-            }
-        }
-    }while(coordenadaNum == -1)
-    return coordenadaNum
-}
-
-fun comprobarNumero(num : Int) : Int{
-    var coordenada = num
-    var coordenadaNumero = -1
+    println("----------------------------------------------------------------\n" +
+            "------------------------ BARCOS CREADOS ------------------------\n" +
+            "-------------------- ¡QUE EMPIECE EL JUEGO! ---------------------\n" +
+            "-----------------------------------------------------------------\n Pulsa \"Intro\" para continuar")
+    var seguirJugando = true
     do
     {
-        try
-        {
-            if(coordenada in 1..8)
-            {
-                coordenadaNumero = coordenada - 1
-            }
-            else
-            {
-                println("Número equivocado, inténtelo de nuevo:")
-                coordenada = readln().toInt()
-            }
-        }
-        catch(e : NumberFormatException)
-        {
-            println("Formato numérico incorrecto, inténtalo de nuevo")
-            coordenada = readln().toInt()
-        }
-    }while(coordenadaNumero == -1)
-    return coordenadaNumero
+        println("¡TURNO DEL JUGADOR! PULSA \"INTRO\" PARA CONTINUAR")
+        readln()
+        tableroJuego.atacar(tableroJuego.tableroJugador,tableroJuego.barcosJugador)
+        println("¡TURNO DE LA IA! PULSA \"INTRO\" PARA CONTINUAR")
+        readln()
+        tableroJuego.atacar(tableroJuego.tableroIA,tableroJuego.barcosIA)
+        seguirJugando = tableroJuego.comprobarGanador()
+    }
+    while(seguirJugando)
+
 }
+
+
