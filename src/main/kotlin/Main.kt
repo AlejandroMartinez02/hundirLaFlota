@@ -1,29 +1,29 @@
 import java.lang.NumberFormatException
-
+//Salva dice que limpie la consola(No se si hacerle caso)
 class Juego
 {
     var tableroJugador = Array(8){Array(8){"~~~"} }
     var tableroIA = Array(8){Array(8){"~~~"} }
-    var barcosJugador = List<Barco>(6){Barco()}
-    var barcosIA = List<Barco>(6){Barco()}
+    var barcosJugador = List(6){Barco()}
+    var barcosIA = List(6){Barco()}
 
     fun pintarTablero()
     {
         var letter = 65
         println("-------------------------------------------------------------------------------")
         println("  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | \t \t  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |")
-        for(i in 0 until  tableroJugador.size)
+        for(i in tableroJugador.indices)
         {
             print("|${letter.toChar()}")
 
-            for(x in 0 until tableroJugador.size)
+            for(x in tableroJugador.indices)
             {
                 print("|" + tableroJugador[i][x])
             }
             print("| \t \t")
             print("|${letter.toChar()}")
             letter++
-            for(z in 0 until tableroIA.size)
+            for(z in tableroIA.indices)
                 print("|" + tableroIA[i][z])
             println("|")
         }
@@ -107,44 +107,40 @@ class Juego
         return estaOcupado
     }
 
-    fun pintarBarco(barco : Barco, mapa : Array<Array<String>>) : Boolean{
+    private fun pintarBarco(barco : Barco, mapa : Array<Array<String>>) : Boolean{
         var faltaAlgo = false
         if(!comprobarBarcos(barco, mapa))
         {
-            if (barco.nombre.compareTo("Submarino") == 0)
-            {
-                for (x in 0 until barco.tamanoBarco)
-                    mapa[barco.coordenadasLetras[x]][barco.coordenadasNumeros[x]] = " S "
+          if(mapa.contentEquals(tableroJugador))
+          {
+              if (barco.nombre.compareTo("Submarino") == 0)
+              {
+                  for (x in 0 until barco.tamanoBarco)
+                      mapa[barco.coordenadasLetras[x]][barco.coordenadasNumeros[x]] = " S "
 
-            }
-            else if (barco.nombre.compareTo("Destructor") == 0)
-            {
-                for (x in 0 until barco.tamanoBarco)
-                    mapa[barco.coordenadasLetras[x]][barco.coordenadasNumeros[x]] = " D "
-            }
-            else if (barco.nombre.compareTo("Crucero") == 0)
-            {
-                for (x in 0 until barco.tamanoBarco)
-                    mapa[barco.coordenadasLetras[x]][barco.coordenadasNumeros[x]] = " C "
-            }
-            else if (barco.nombre.compareTo("Acorazado") == 0)
-            {
-                for (x in 0 until barco.tamanoBarco)
-                    mapa[barco.coordenadasLetras[x]][barco.coordenadasNumeros[x]] = " A "
-            }
+              }
+              else if (barco.nombre.compareTo("Destructor") == 0)
+              {
+                  for (x in 0 until barco.tamanoBarco)
+                      mapa[barco.coordenadasLetras[x]][barco.coordenadasNumeros[x]] = " D "
+              }
+              else if (barco.nombre.compareTo("Crucero") == 0)
+              {
+                  for (x in 0 until barco.tamanoBarco)
+                      mapa[barco.coordenadasLetras[x]][barco.coordenadasNumeros[x]] = " C "
+              }
+              else if (barco.nombre.compareTo("Acorazado") == 0)
+              {
+                  for (x in 0 until barco.tamanoBarco)
+                      mapa[barco.coordenadasLetras[x]][barco.coordenadasNumeros[x]] = " A "
+              }
+          }
         }
         else
         {
             faltaAlgo = true
         }
         return faltaAlgo
-    }
-
-    fun bienvenida(){
-        println("----------------------------------------------------------- \n" +
-                "--------------------BIENVENIDO AL JUEGO--------------------\n" +
-                "-----------------------------------------------------------\n-\n-\n-")
-
     }
 
    fun pedirDatos(barco : Barco)
@@ -171,10 +167,7 @@ class Juego
 
      fun generarBarcosIA(barco : Barco)
     {
-        var condicion = true
-        var coordenadaLetra : Int
-        var coordenadaNum : Int
-        var contador = 0
+        var condicion : Boolean
         do{
             barco.coordenadasLetras.add( (0..7).random())
             barco.coordenadasNumeros.add((0..7).random())
@@ -190,7 +183,7 @@ class Juego
            var coordenadaLetra : Int
            var coordenadaNum : Int
            var tocado = false
-           if(mapa == tableroJugador && barcos == barcosJugador)
+           if(mapa.contentEquals(tableroJugador) && barcos == barcosJugador)
            {
                coordenadaLetra = (0..7).random()
                coordenadaNum = (0..7).random()
@@ -208,12 +201,12 @@ class Juego
                   {
                       for(x in 0 until i.coordenadasNumeros.size)
                       {
-                          if(i.coordenadasLetras[x] == coordenadaLetra && i.coordenadasNumeros[x] == coordenadaNum)
+                          if((i.coordenadasLetras[x] == coordenadaLetra && i.coordenadasNumeros[x] == coordenadaNum) &&
+                              (mapa[i.coordenadasLetras[x]][i.coordenadasNumeros[x]] !=" T " && mapa[i.coordenadasLetras[x]][i.coordenadasNumeros[x]] !=" H "))
                           {
                               mapa[coordenadaLetra][coordenadaNum] = " T "
                               tocado = true
                               i.vidas--
-                              println("¡TIRO ACERTADO, SE AÑADE UN NUEVO TURNO!")
                               if(i.vidas == 0)
                               {
                                   for(z in 0 until i.tamanoBarco)
@@ -221,9 +214,10 @@ class Juego
                                       mapa[i.coordenadasLetras[z]][i.coordenadasNumeros[z]] = " H "
                                   }
                               }
-                              i.coordenadasLetras.removeAt(x)
-                              i.coordenadasNumeros.removeAt(x)
+                              println("¡TIRO ACERTADO, SE AÑADE UN NUEVO TURNO!")
                               pintarTablero()
+
+                              readLine()
                               break
                           }
                       }
@@ -243,7 +237,7 @@ class Juego
            }
        }while(tocado)
    }
-    fun comprobarLetra(letra : String) : Int{
+    private fun comprobarLetra(letra : String) : Int{
         var coordenada = letra.uppercase()
         var coordenadaNum = -1
         do{
@@ -265,7 +259,7 @@ class Juego
         return coordenadaNum
     }
 
-    fun comprobarNumero(num : Int) : Int{
+    private fun comprobarNumero(num : Int) : Int{
         var coordenada = num
         var coordenadaNumero = -1
         do
@@ -293,8 +287,8 @@ class Juego
 
     fun comprobarGanador() : Boolean
     {
-        var contadorVidasJugador = 6;
-        var contadorVidasIA = 6;
+        var contadorVidasJugador = 6
+        var contadorVidasIA = 6
 
         for(element in barcosJugador){
             if(element.vidas == 0)
@@ -325,12 +319,11 @@ class Juego
 }
 
 fun main() {
-
     val tableroJuego = Juego()
-    val nombres = listOf<String>("Submarino", "Submarino", "Destructor", "Destructor", "Crucero", "Acorazado")
-    val tamanyos = listOf<Int>(1,1,2,2,3,4)
+    val nombres = listOf("Submarino", "Submarino", "Destructor", "Destructor", "Crucero", "Acorazado")
+    val tamanyos = listOf(1,1,2,2,3,4)
 
-    for(i in 0 until nombres.size){
+    for(i in nombres.indices){
         tableroJuego.barcosIA[i].tamanoBarco = tamanyos[i]
         tableroJuego.barcosIA[i].nombre = nombres[i]
         tableroJuego.barcosIA[i].vidas = tamanyos[i]
@@ -339,8 +332,9 @@ fun main() {
         tableroJuego.barcosJugador[i].nombre = nombres[i]
         tableroJuego.barcosJugador[i].vidas = tamanyos[i]
     }
-    tableroJuego.bienvenida()
-    readln()
+    bienvenida()
+    reglas()
+    Thread.sleep(3000)
     tableroJuego.pintarTablero()
 
    for(i in tableroJuego.barcosJugador){
@@ -354,20 +348,38 @@ fun main() {
     println("----------------------------------------------------------------\n" +
             "------------------------ BARCOS CREADOS ------------------------\n" +
             "-------------------- ¡QUE EMPIECE EL JUEGO! ---------------------\n" +
-            "-----------------------------------------------------------------\n Pulsa \"Intro\" para continuar")
-    var seguirJugando = true
+            "-----------------------------------------------------------------")
+    var seguirJugando : Boolean
     do
     {
-        println("¡TURNO DEL JUGADOR! PULSA \"INTRO\" PARA CONTINUAR")
-        readln()
-        tableroJuego.atacar(tableroJuego.tableroJugador,tableroJuego.barcosJugador)
         println("¡TURNO DE LA IA! PULSA \"INTRO\" PARA CONTINUAR")
-        readln()
+        readLine()
+        tableroJuego.atacar(tableroJuego.tableroJugador,tableroJuego.barcosJugador)
+        println("¡TURNO DEL JUGADOR! PULSA \"INTRO\" PARA CONTINUAR")
+        readLine()
         tableroJuego.atacar(tableroJuego.tableroIA,tableroJuego.barcosIA)
         seguirJugando = tableroJuego.comprobarGanador()
     }
     while(seguirJugando)
 
+}
+fun bienvenida(){
+    println("----------------------------------------------------------- \n" +
+            "--------------------BIENVENIDO AL JUEGO--------------------\n" +
+            "-----------------------------------------------------------\n-\n-\n-"
+            )
+
+}
+
+fun reglas()
+{
+    println("REGLAS DEL JUEGO \n" +
+            "1. Elimina todos los barcos del enemigo \n" +
+            "2. Primero colocarás tus 6 barcos, después se generarán los barcos de la IA \n" +
+            "3. ¡No repitas una coordenada, fallarás y perderás el turno!\n" +
+            "4. La IA ataque aleatoriamente, ¡aun así ten cuidado!\n" +
+            "5. La última pero no menos importante, ¡DISFRUTA!\n" +
+            " Pulsa \"Intro\" para continuar")
 }
 
 
