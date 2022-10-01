@@ -17,7 +17,7 @@ class Barco
                 "A" -> direccion = 3
                 else -> {
                     println("No es un dirección correcta, vuelve a intentarlo")
-                    direccionString = readln()
+                    direccionString = readln().uppercase()
                 }
             }
         }while(direccion == -1)
