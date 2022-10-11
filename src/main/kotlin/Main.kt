@@ -85,8 +85,6 @@ class Juego {
     private fun pintarBarco(barco: Barco, mapa: Array<Array<String>>): Boolean {
         var faltaAlgo = false
         if (!comprobarBarcos(barco, mapa)) {
-//          if(mapa.contentEquals(tableroJugador))
-//          {
             if (barco.nombre.compareTo("Submarino") == 0) {
                 for (x in 0 until barco.tamanoBarco)
                     mapa[barco.coordenadasLetras[x]][barco.coordenadasNumeros[x]] = " S "
@@ -100,13 +98,11 @@ class Juego {
                 for (x in 0 until barco.tamanoBarco)
                     mapa[barco.coordenadasLetras[x]][barco.coordenadasNumeros[x]] = " A "
             }
-            //}
         } else {
             faltaAlgo = true
         }
         return faltaAlgo
     }
-
     fun pedirDatos(barco: Barco) {
         var condicion = true
         do {
