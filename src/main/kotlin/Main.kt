@@ -10,8 +10,8 @@ class Juego {
 
     fun pintarTablero() {
         var letter = 65
-        println("-------------------------------------------------------------------------------")
-        println("  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | \t \t  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |")
+        println("---------------------------------------------------------------------------------")
+        println("  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | \t \t   | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |")
         for (i in tableroJugador.indices) {
             print("|${letter.toChar()}")
             pintarFilas(tableroJugador, i)
@@ -20,7 +20,7 @@ class Juego {
             letter++
             println("|")
         }
-        println("-------------------------------------------------------------------------------")
+        println("---------------------------------------------------------------------------------")
     }
 
     private fun pintarFilas(mapa: Array<Array<String>>, i: Int) {
@@ -112,11 +112,11 @@ class Juego {
         do {
             try {
                 println("¿Dónde quieres colocar el ${barco.nombre}, que su tamaño es de ${barco.tamanoBarco}?(La letra)")
-                barco.coordenadasLetras.add(comprobarLetra(readln()))
+                barco.coordenadasLetras.add(comprobarLetra(readln().replace("\\s+".toRegex(), "")))
                 println("¿Dónde quieres colocar el ${barco.nombre}?(El número)")
-                barco.coordenadasNumeros.add(comprobarNumero(readln().toInt()))
+                barco.coordenadasNumeros.add(comprobarNumero(readln().replace("\\s+".toRegex(), "").toInt()))
                 println("¿En qué dirección lo quieres? \n Arriba: W \n Derecha: D \n Abajo: S \n Izquierda: A")
-                barco.comprobarDireccion(readln())
+                barco.comprobarDireccion(readln().replace("\\s+".toRegex(), ""))
                 condicion = pintarBarco(barco, tableroJugador)
                 if (condicion)
                     println("Ha colocado erroneamente el barco, vuelva a introducir los datos")
@@ -138,6 +138,7 @@ class Juego {
     }
 
     fun atacar(mapa: Array<Array<String>>, barcos: List<Barco>) {
+
         do {
             var coordenadaLetra: Int
             var coordenadaNum: Int
@@ -166,7 +167,7 @@ class Juego {
                                 (mapa[i.coordenadasLetras[x]][i.coordenadasNumeros[x]] != " T " && mapa[i.coordenadasLetras[x]][i.coordenadasNumeros[x]] != " H ")
                             ) {
                                 mapa[coordenadaLetra][coordenadaNum] = " T "
-                                tocado = true
+
                                 i.vidas--
                                 println("\n¡TIRO ACERTADO, SE AÑADE UN NUEVO TURNO!")
                                 Thread.sleep(1000)
@@ -176,9 +177,9 @@ class Juego {
                                     }
                                     println("¡TOCADO Y HUNDIDO!")
                                     Thread.sleep(1000)
-
                                 }
                                 pintarTablero()
+                                tocado = !(contarVidasIA() == 0 || contarVidasJugador() == 0)
                                 break
                             }
                         }
@@ -186,21 +187,19 @@ class Juego {
                 }
                 if (!tocado && mapa[coordenadaLetra][coordenadaNum] == "~~~") {
                     mapa[coordenadaLetra][coordenadaNum] = "***"
-                }
-                if (!tocado) {
                     println("\n¡TIRO FALLADO!")
                     Thread.sleep(1000)
                     pintarTablero()
                 }
             } catch (e: NumberFormatException) {
-                println("El formato del número es erróneo, inténtelo de nuevo")
+                println("El formato del número es erróneo. Comenzamos el ataque de nuevo")
                 tocado = true
             }
         } while (tocado)
     }
 
     private fun comprobarLetra(letra: String): Int {
-        var coordenada = letra.uppercase()
+        var coordenada = letra.uppercase().replace("\\s+".toRegex(), "")
         var coordenadaNum = -1
         do {
             when (coordenada) {
@@ -234,30 +233,41 @@ class Juego {
                 }
             } catch (e: NumberFormatException) {
                 println("Formato numérico incorrecto, inténtalo de nuevo")
-                coordenada = readln().toInt()
+                coordenada = readln().replace("\\s+".toRegex(), "").toInt()
             }
         } while (coordenadaNumero == -1)
         return coordenadaNumero
     }
 
-    fun comprobarGanador(): Boolean {
-        var contadorVidasJugador = 6
+    private fun contarVidasIA() : Int{
         var contadorVidasIA = 6
-        for (element in barcosJugador) {
-            if (element.vidas == 0)
-                contadorVidasJugador--
-        }
         for (element in barcosIA) {
             if (element.vidas == 0)
                 contadorVidasIA--
         }
-        return if (contadorVidasJugador == 0) {
+        return contadorVidasIA
+    }
+
+
+    private fun contarVidasJugador() : Int{
+        var contadorVidasJugador = 6
+        for (element in barcosJugador) {
+            if (element.vidas == 0)
+                contadorVidasJugador--
+        }
+        return contadorVidasJugador
+    }
+
+    fun comprobarGanador(): Boolean {
+        val contadorVidasJugador = contarVidasJugador()
+        val contadorVidasIA = contarVidasIA()
+
+        if (contadorVidasJugador == 0) {
             println(
                 "-------------------------------------------------------------------\n" +
                         "------------------------- ¡GANADOR: IA! ---------------------------\n" +
                         "-------------------------------------------------------------------\n"
             )
-            false
         } else if (contadorVidasIA == 0) {
 
             println(
@@ -265,10 +275,8 @@ class Juego {
                         "----------------------- ¡GANADOR: JUGADOR! ------------------------\n" +
                         "-------------------------------------------------------------------\n"
             )
-            false
-        } else {
-            true
         }
+        return !(contadorVidasIA == 0 || contadorVidasJugador == 0)
     }
 }
 
@@ -298,7 +306,7 @@ fun main() {
     for (i in tableroJuego.barcosIA) {
         tableroJuego.generarBarcosIA(i)
     }
-
+    //Comentar la siguiente línea para ver la posición de la IA
     tableroJuego.tableroIA = Array(8) { Array(8) { "~~~" } }
 
     println(
