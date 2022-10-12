@@ -103,7 +103,7 @@ class Juego {
         }
         return faltaAlgo
     }
-    fun pedirDatos(barco: Barco) {
+    fun pedirDatos(barco: Barco){
         var condicion = true
         do {
             try {
